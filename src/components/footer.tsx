@@ -5,7 +5,16 @@ import { useState } from "react";
 import { SVGProps } from "react";
 import { ChevronRight, Send } from "lucide-react";
 
-const footerLinks = [
+type FooterLink = {
+  name: string;
+  href: string;
+  highlight?: boolean;
+};
+
+const footerLinks: {
+  title: string;
+  links: FooterLink[];
+}[] = [
   {
     title: "Produit",
     links: [
@@ -122,6 +131,19 @@ export function Footer() {
                   Logiciel intelligent d'analyse et de génération automatique de documents pour les professionnels. Transformez vos données en documents exploitables en quelques clics.
                 </p>
                 
+                <Link 
+                  href="/telechargement" 
+                  className="relative group flex items-center justify-center gap-2 py-4 px-8 mb-8 bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-700 hover:to-violet-700 text-white font-medium rounded-xl shadow-lg hover:shadow-xl shadow-blue-500/20 hover:shadow-blue-500/30 transition-all duration-200 overflow-hidden w-full sm:w-auto"
+                >
+                  <div className="relative flex items-center gap-2 z-10">
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    <span>Télécharger Gratuitement VynalDocs</span>
+                  </div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-700 to-violet-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                </Link>
+                
                 <div className="mb-10">
                   <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4">Restez informé</h4>
                   <form onSubmit={handleSubscribe} className="relative">
@@ -142,7 +164,7 @@ export function Footer() {
                         className="relative group py-3.5 px-6 bg-gradient-to-r from-blue-600 to-violet-600 text-white font-medium rounded-xl shadow-lg hover:shadow-xl shadow-blue-500/20 hover:shadow-blue-500/30 transition-all duration-200 overflow-hidden"
                       >
                         <div className="relative flex items-center justify-center gap-2 z-10">
-                          <span>S'abonner</span>
+                          <span>S&apos;abonner</span>
                           <Send className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
                         </div>
                         <div className="absolute inset-0 bg-gradient-to-r from-blue-700 to-violet-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
@@ -182,10 +204,23 @@ export function Footer() {
                           <li key={link.name}>
                             <Link
                               href={link.href}
-                              className="group flex items-center text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 text-sm transition-colors duration-200"
+                              className={`group flex items-center ${link.highlight 
+                                ? "text-white bg-gradient-to-r from-blue-600 to-violet-600 font-medium px-3 py-1.5 rounded-md"
+                                : "text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400"} text-sm transition-colors duration-200`}
                             >
-                              <ChevronRight className="w-3.5 h-3.5 mr-1.5 opacity-0 group-hover:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all" />
-                              <span>{link.name}</span>
+                              {link.highlight ? (
+                                <>
+                                  <svg className="w-3.5 h-3.5 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                  </svg>
+                                  <span>{link.name}</span>
+                                </>
+                              ) : (
+                                <>
+                                  <ChevronRight className="w-3.5 h-3.5 mr-1.5 opacity-0 group-hover:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all" />
+                                  <span>{link.name}</span>
+                                </>
+                              )}
                             </Link>
                           </li>
                         ))}
@@ -215,6 +250,15 @@ export function Footer() {
                           </svg>
                           <span className="ml-1.5 text-xs font-medium text-gray-600 dark:text-gray-300">Android</span>
                         </div>
+                        <Link 
+                          href="/telechargement" 
+                          className="flex items-center px-3.5 py-1.5 bg-gradient-to-r from-blue-600 to-violet-600 text-white rounded-md shadow-sm hover:shadow-md transition-all duration-200"
+                        >
+                          <svg className="h-4 w-4 text-white mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                          </svg>
+                          <span className="text-xs font-medium">Télécharger</span>
+                        </Link>
                       </div>
                     </div>
                   </div>
@@ -247,7 +291,7 @@ export function Footer() {
                   href="/cgv" 
                   className="text-sm text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
                 >
-                  Conditions d'utilisation
+                  Conditions d&apos;utilisation
                 </Link>
                 <Link 
                   href="/cookies" 
