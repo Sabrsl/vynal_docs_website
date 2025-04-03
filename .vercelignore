@@ -1,0 +1,21 @@
+# Ignorer les fichiers et dossiers de développement
+node_modules
+.git
+.next
+*.log
+
+# Ignorer les fichiers d'environnement
+.env
+.env.*
+!.env.example
+
+# Ignorer les dossiers de builds
+out/
+dist/
+build/
+
+# Fichiers d'IDE
+.idea
+.vscode
+*.swp
+*.swo 

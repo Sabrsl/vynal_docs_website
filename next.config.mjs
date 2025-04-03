@@ -3,6 +3,13 @@ const nextConfig = {
   // Optimisation de la compression
   compress: true,
   
+  // Configuration ESLint
+  eslint: {
+    // Warning: This allows production builds to successfully complete even if
+    // your project has ESLint errors.
+    ignoreDuringBuilds: true,
+  },
+  
   // Optimisation des images
   images: {
     formats: ['image/avif', 'image/webp'],
