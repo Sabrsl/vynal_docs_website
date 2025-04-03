@@ -5,8 +5,6 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Mail, Phone, MapPin, CheckCircle, Send, HelpCircle, Clock, MessageSquare, Users } from "lucide-react";
 
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -42,8 +40,7 @@ export default function ContactPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-50 to-white dark:from-gray-950 dark:to-gray-900 overflow-hidden">
-      <Header />
-      
+
       {/* Hero Section avec 3D morphing background */}
       <section className="relative pt-32 pb-20 md:pt-40 md:pb-24 overflow-hidden">
         {/* Blob backgrounds */}
@@ -433,7 +430,6 @@ export default function ContactPage() {
         </div>
       </section>
 
-      <Footer />
     </div>
   );
 }

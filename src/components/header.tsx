@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "next-themes";
 
@@ -70,14 +70,36 @@ const features = [
   },
 ];
 
+// Suggestions pour la recherche avec leurs routes associées
+interface SearchSuggestion {
+  text: string;
+  route: string;
+}
+
+const searchSuggestions: SearchSuggestion[] = [
+  { text: "Documentation API", route: "/documentation" },
+  { text: "Modèles de contrats", route: "/ressources/telechargements" },
+  { text: "Tutoriels vidéo", route: "/ressources/tutoriels" },
+  { text: "Intégration CRM", route: "/fonctionnalites/integration" },
+  { text: "Analyse de documents", route: "/fonctionnalites/analyse" },
+  { text: "Extraction de données", route: "/fonctionnalites/extraction" },
+  { text: "Modèles personnalisés", route: "/fonctionnalites/modeles" },
+  { text: "RGPD", route: "/a-propos" },
+  { text: "Automatisation", route: "/fonctionnalites" }
+];
+
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const pathname = usePathname();
+  const router = useRouter();
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filteredSuggestions, setFilteredSuggestions] = useState<SearchSuggestion[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -141,6 +163,47 @@ export function Header() {
       document.body.classList.remove('theme-loading');
     }
   }, [mounted]);
+
+  // Filtrer les suggestions en fonction de la saisie
+  useEffect(() => {
+    if (searchQuery.length >= 1) {
+      const filtered = searchSuggestions.filter(
+        suggestion => suggestion.text.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setFilteredSuggestions(filtered.slice(0, 5)); // Limiter à 5 suggestions
+      setShowSuggestions(true);
+    } else {
+      setShowSuggestions(false);
+    }
+  }, [searchQuery]);
+
+  // Gérer la sélection d'une suggestion
+  const handleSuggestionClick = (suggestion: SearchSuggestion) => {
+    setSearchQuery(suggestion.text);
+    setShowSuggestions(false);
+    // Rediriger vers la route spécifique associée à la suggestion
+    router.push(suggestion.route);
+    setSearchOpen(false);
+  };
+
+  // Gérer la soumission du formulaire de recherche
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      // Si la recherche correspond exactement à une suggestion, aller vers sa route
+      const exactMatch = searchSuggestions.find(
+        suggestion => suggestion.text.toLowerCase() === searchQuery.toLowerCase()
+      );
+      
+      if (exactMatch) {
+        router.push(exactMatch.route);
+      } else {
+        // Sinon, aller vers la page de recherche avec le terme en query
+        router.push(`/ressources/search?q=${encodeURIComponent(searchQuery)}`);
+      }
+      setSearchOpen(false);
+    }
+  };
 
   // Fonction pour fermer le menu mobile
   const closeMobileMenu = () => {
@@ -344,7 +407,7 @@ export function Header() {
             <Button 
               className="relative bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-700 hover:to-violet-700 text-white text-sm font-medium px-5 rounded-full shadow-md transition-all duration-200 border-0"
             >
-              Essayer gratuitement
+              Télécharger
             </Button>
           </div>
 
@@ -389,22 +452,51 @@ export function Header() {
             className="absolute inset-x-0 top-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 py-4 shadow-md z-50"
           >
             <div className="container mx-auto px-4">
-              <div className="flex items-center gap-3">
-                <Search className="w-5 h-5 text-gray-400" />
-                <input
-                  ref={searchInputRef}
-                  type="text"
-                  placeholder="Rechercher dans VynalDocs..."
-                  className="flex-1 py-2 bg-transparent border-none outline-none text-gray-900 dark:text-gray-100 placeholder:text-gray-400"
-                  autoComplete="off"
-                />
-                <button 
-                  onClick={() => setSearchOpen(false)}
-                  className="p-2 text-gray-500 hover:text-gray-900 dark:hover:text-gray-100"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
+              <form onSubmit={handleSearchSubmit} className="relative">
+                <div className="flex items-center gap-3">
+                  <Search className="w-5 h-5 text-gray-400" />
+                  <input
+                    ref={searchInputRef}
+                    type="text"
+                    placeholder="Rechercher dans VynalDocs..."
+                    className="flex-1 py-2 bg-transparent border-none outline-none text-gray-900 dark:text-gray-100 placeholder:text-gray-400"
+                    autoComplete="off"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onFocus={() => setShowSuggestions(true)}
+                    onBlur={() => setTimeout(() => setShowSuggestions(false), 300)}
+                  />
+                  <button 
+                    type="button"
+                    onClick={() => setSearchOpen(false)}
+                    className="p-2 text-gray-500 hover:text-gray-900 dark:hover:text-gray-100"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+                
+                {/* Suggestions */}
+                {showSuggestions && filteredSuggestions.length > 0 && (
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg overflow-hidden z-50">
+                    <ul className="max-h-60 overflow-y-auto">
+                      {filteredSuggestions.map((suggestion, index) => (
+                        <li 
+                          key={index}
+                          className="px-4 py-3 hover:bg-blue-50 dark:hover:bg-blue-900/30 cursor-pointer border-b border-gray-100 dark:border-gray-700 last:border-0 flex items-center text-gray-800 dark:text-gray-200"
+                          onClick={() => handleSuggestionClick(suggestion)}
+                          onMouseDown={(e) => e.preventDefault()} // Empêche le onBlur de se déclencher avant le onClick
+                        >
+                          <Search className="mr-2 w-4 h-4 text-blue-500" />
+                          <span>{suggestion.text}</span>
+                        </li>
+                      ))}
+                      <li className="px-4 py-2.5 bg-gray-50 dark:bg-gray-700/60 text-sm text-gray-600 dark:text-gray-300 border-t border-gray-100 dark:border-gray-700 font-medium">
+                        Appuyez sur Entrée pour rechercher
+                      </li>
+                    </ul>
+                  </div>
+                )}
+              </form>
             </div>
           </motion.div>
         )}
@@ -552,7 +644,7 @@ export function Header() {
                   className="w-full justify-center bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-700 hover:to-violet-700 text-white text-base font-medium shadow-md border-0"
                   onClick={closeMobileMenu}
                 >
-                  Essayer gratuitement
+                  Télécharger gratuitement sur PC
                 </Button>
               </div>
             </div>

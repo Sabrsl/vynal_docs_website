@@ -1,8 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -14,8 +12,7 @@ export const metadata = {
 export default function AboutPage() {
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
-      
+
       {/* Hero Section */}
       <section className="pt-32 pb-20 md:pt-44 md:pb-32">
         <div className="container">
@@ -217,7 +214,6 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <Footer />
     </div>
   );
 } 

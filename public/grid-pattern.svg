@@ -1,0 +1,5 @@
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <path d="M0 0h32v32H0z" fill="none" />
+  <path d="M1 1h30v30H1z" stroke="rgba(100,100,100,0.05)" stroke-width="0.5" fill="none" />
+  <path d="M8 1v30M16 1v30M24 1v30M1 8h30M1 16h30M1 24h30" stroke="rgba(100,100,100,0.05)" stroke-width="0.5" />
+</svg> 

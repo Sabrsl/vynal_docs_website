@@ -2,8 +2,6 @@ import * as React from "react";
 import Link from "next/link";
 import { ArrowLeft, FileText, Shield, Scale, Clock, Scroll, AlertCircle, BookOpen, ChevronRight } from "lucide-react";
 
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 
 export default function TermsOfService() {
@@ -152,8 +150,7 @@ export default function TermsOfService() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-50 to-white dark:from-gray-950 dark:to-gray-900">
-      <Header />
-      
+
       <main className="flex-grow pt-32 pb-24">
         {/* Hero Section */}
         <section className="relative mb-16">
@@ -235,8 +232,7 @@ export default function TermsOfService() {
           </div>
         </div>
       </main>
-      
-      <Footer />
+
     </div>
   );
 } 

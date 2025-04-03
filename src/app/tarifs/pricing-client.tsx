@@ -5,8 +5,6 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { CheckCircle, Star, ArrowRight, Diamond, ShieldCheck, Users, Zap, Cpu, Key, HelpCircle } from "lucide-react";
 
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 
 export default function PricingClient() {
@@ -15,8 +13,7 @@ export default function PricingClient() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-50 to-white dark:from-gray-950 dark:to-gray-900 overflow-hidden">
-      <Header />
-      
+
       {/* Hero Section avec 3D morphing background */}
       <section className="relative pt-32 pb-20 md:pt-40 md:pb-32 overflow-hidden">
         {/* Blob backgrounds */}
@@ -500,8 +497,7 @@ export default function PricingClient() {
           </div>
         </div>
       </section>
-      
-      <Footer />
+
     </div>
   );
 } 

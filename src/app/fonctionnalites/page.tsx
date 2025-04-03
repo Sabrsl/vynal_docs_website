@@ -5,8 +5,6 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { FileSearch, FileText, FileSpreadsheet, Users, ArrowRight, Check } from "lucide-react";
 
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 
 // Animation variants
@@ -87,8 +85,7 @@ export default function FeaturesPage() {
   
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-50 to-white dark:from-gray-950 dark:to-gray-900 overflow-hidden">
-      <Header />
-      
+
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 md:pt-40 md:pb-32 overflow-hidden">
         {/* Blob backgrounds */}
@@ -404,7 +401,6 @@ export default function FeaturesPage() {
         </div>
       </section>
 
-      <Footer />
     </div>
   );
 }

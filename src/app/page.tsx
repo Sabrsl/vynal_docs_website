@@ -1,17 +1,82 @@
+'use client';
+
 import Link from "next/link";
 import Image from "next/image";
 import * as React from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { 
   FileText, ChevronRight, FileSearch, Copy, Layout, Users, 
-  Lock, Check, ArrowRight, MessageSquare, Star, HelpCircle 
+  Lock, Check, ArrowRight, MessageSquare, Star, HelpCircle, Search 
 } from "lucide-react";
 
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
+// Type pour les suggestions
+interface SearchSuggestion {
+  text: string;
+  route: string;
+}
+
+// Suggestions pour la recherche avec leurs routes associées
+const searchSuggestions: SearchSuggestion[] = [
+  { text: "Documentation API", route: "/documentation" },
+  { text: "Modèles de contrats", route: "/ressources/telechargements" },
+  { text: "Tutoriels vidéo", route: "/ressources/tutoriels" },
+  { text: "Intégration CRM", route: "/fonctionnalites/integration" },
+  { text: "Analyse de documents", route: "/fonctionnalites/analyse" },
+  { text: "Extraction de données", route: "/fonctionnalites/extraction" },
+  { text: "Modèles personnalisés", route: "/fonctionnalites/modeles" },
+  { text: "RGPD", route: "/a-propos" },
+  { text: "Automatisation", route: "/fonctionnalites" }
+];
+
 export default function Home() {
+  const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filteredSuggestions, setFilteredSuggestions] = useState<SearchSuggestion[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
+  // Filtrer les suggestions en fonction de la saisie
+  useEffect(() => {
+    if (searchQuery.length >= 1) {
+      const filtered = searchSuggestions.filter(
+        suggestion => suggestion.text.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setFilteredSuggestions(filtered.slice(0, 5)); // Limiter à 5 suggestions
+      setShowSuggestions(true);
+    } else {
+      setShowSuggestions(false);
+    }
+  }, [searchQuery]);
+
+  // Gérer la sélection d'une suggestion
+  const handleSuggestionClick = (suggestion: SearchSuggestion) => {
+    setSearchQuery(suggestion.text);
+    setShowSuggestions(false);
+    // Rediriger vers la route spécifique
+    router.push(suggestion.route);
+  };
+
+  // Gérer la soumission du formulaire
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      // Si la recherche correspond exactement à une suggestion, aller vers sa route
+      const exactMatch = searchSuggestions.find(
+        suggestion => suggestion.text.toLowerCase() === searchQuery.toLowerCase()
+      );
+      
+      if (exactMatch) {
+        router.push(exactMatch.route);
+      } else {
+        // Sinon, aller vers la page de recherche
+        router.push(`/ressources/search?q=${encodeURIComponent(searchQuery)}`);
+      }
+    }
+  };
+
   // Features data
   const features = [
     {
@@ -106,8 +171,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-50 to-white dark:from-gray-950 dark:to-gray-900 overflow-hidden">
-      <Header />
-      
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 md:pt-40 md:pb-32 overflow-hidden">
         {/* Blob backgrounds */}
@@ -309,8 +372,71 @@ export default function Home() {
         </div>
       </section>
 
-      {/* How It Works Section - and more sections follow */}
-      <Footer />
+      {/* Search Section */}
+      <section className="py-24 bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-950 relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-gray-200 dark:via-gray-800 to-transparent"></div>
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-400/5 dark:bg-indigo-900/10 rounded-full blur-3xl -z-10"></div>
+        
+        <div className="container max-w-6xl">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
+              Rechercher dans VynalDocs
+            </h2>
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+              Trouvez rapidement les informations dont vous avez besoin
+            </p>
+          </div>
+
+          <div className="max-w-xl mx-auto relative">
+            <form action="/ressources/search" method="GET" className="flex items-center bg-white dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700/60 rounded-xl overflow-hidden shadow-sm focus-within:ring-2 focus-within:ring-blue-500/50 focus-within:border-transparent"
+                  onSubmit={handleSearchSubmit}>
+              <Search className="ml-4 w-5 h-5 text-gray-400" />
+              <input 
+                type="text" 
+                name="q"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Rechercher dans VynalDocs..." 
+                className="w-full py-3.5 px-3 border-none bg-transparent focus:outline-none text-gray-800 dark:text-gray-200"
+                onFocus={() => setShowSuggestions(true)}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 300)}
+              />
+              <button 
+                type="submit"
+                className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium py-2.5 px-5 m-1 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+              >
+                Rechercher
+              </button>
+            </form>
+            
+            {/* Suggestions */}
+            {showSuggestions && filteredSuggestions.length > 0 && (
+              <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg overflow-hidden z-50">
+                <ul className="max-h-60 overflow-y-auto">
+                  {filteredSuggestions.map((suggestion, index) => (
+                    <li 
+                      key={index}
+                      className="px-4 py-3 hover:bg-blue-50 dark:hover:bg-blue-900/30 cursor-pointer border-b border-gray-100 dark:border-gray-700 last:border-0 flex items-center text-gray-800 dark:text-gray-200"
+                      onClick={() => handleSuggestionClick(suggestion)}
+                      onMouseDown={(e) => e.preventDefault()} // Empêche le onBlur de se déclencher avant le onClick
+                    >
+                      <Search className="mr-2 w-4 h-4 text-blue-500" />
+                      <span>{suggestion.text}</span>
+                    </li>
+                  ))}
+                  <li className="px-4 py-2.5 bg-gray-50 dark:bg-gray-700/60 text-sm text-gray-600 dark:text-gray-300 border-t border-gray-100 dark:border-gray-700 font-medium">
+                    Appuyez sur Entrée pour rechercher
+                  </li>
+                </ul>
+              </div>
+            )}
+            
+            <div className="absolute -bottom-8 inset-x-0 text-xs text-center text-gray-500 dark:text-gray-400">
+              Recherchez dans la documentation, les tutoriels, les ressources, etc.
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
