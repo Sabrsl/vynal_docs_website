@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { 
@@ -161,7 +161,8 @@ const filterResults = (query: string): SearchResult[] => {
   );
 };
 
-export default function SearchPage() {
+// Composant interne qui utilise useSearchParams
+function SearchContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const initialQuery = searchParams.get('q') || '';
@@ -228,19 +229,15 @@ export default function SearchPage() {
       {/* Hero section */}
       <section className="pt-32 pb-16 md:pt-40 md:pb-24 relative overflow-hidden">
         {/* Background decorations */}
-        <div className="absolute top-40 right-[10%] w-[500px] h-[500px] bg-blue-400/5 dark:bg-blue-500/10 rounded-full blur-3xl -z-10"></div>
-        <div className="absolute top-60 left-[5%] w-[400px] h-[400px] bg-indigo-400/5 dark:bg-indigo-500/10 rounded-full blur-3xl -z-10"></div>
+        <div className="absolute top-0 w-full h-px bg-gradient-to-r from-transparent via-gray-200 dark:via-gray-800 to-transparent"></div>
+        <div className="absolute -top-40 left-0 w-[500px] h-[500px] bg-blue-400/5 dark:bg-blue-900/10 rounded-full blur-3xl -z-10"></div>
+        <div className="absolute -top-40 right-0 w-[500px] h-[500px] bg-purple-400/5 dark:bg-purple-900/10 rounded-full blur-3xl -z-10"></div>
         
         <div className="container max-w-5xl relative">
-          <div className="flex items-center mb-6 text-sm">
-            <Link href="/" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
-              Accueil
-            </Link>
-            <ChevronLeft className="mx-2 w-4 h-4 text-gray-400" />
-            <span className="text-gray-800 dark:text-gray-200 font-medium">
-              Résultats de recherche
-            </span>
-          </div>
+          <Link href="/ressources" className="inline-flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 mb-6 transition-colors">
+            <ChevronLeft className="w-4 h-4" />
+            Retour aux ressources
+          </Link>
           
           <h1 className="text-4xl font-bold mb-6">
             Résultats pour "{searchQuery}"
@@ -294,95 +291,89 @@ export default function SearchPage() {
           </div>
           
           {/* Results section */}
-          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-md border border-gray-100 dark:border-gray-800 p-8">
-            <div className="flex justify-between items-center mb-8">
-              <div className="font-medium">
-                {loading ? (
-                  <span className="text-gray-500 dark:text-gray-400">Recherche en cours...</span>
-                ) : (
-                  <span>{searchResults.length} résultat{searchResults.length !== 1 ? 's' : ''} trouvé{searchResults.length !== 1 ? 's' : ''}</span>
-                )}
-              </div>
-              
-              <div className="text-sm text-gray-600 dark:text-gray-300">
-                Trié par pertinence
-              </div>
-            </div>
-            
+          <div className="space-y-6">
             {loading ? (
-              <div className="py-16 flex justify-center">
-                <div className="animate-pulse flex flex-col items-center">
-                  <div className="h-16 w-16 rounded-full bg-gray-200 dark:bg-gray-700 mb-4"></div>
-                  <div className="h-4 w-40 bg-gray-200 dark:bg-gray-700 rounded mb-3"></div>
-                  <div className="h-3 w-24 bg-gray-200 dark:bg-gray-700 rounded"></div>
-                </div>
-              </div>
-            ) : searchResults.length > 0 ? (
-              <div className="divide-y divide-gray-100 dark:divide-gray-800">
-                {searchResults.map((result) => (
-                  <div key={result.id} className="py-6 first:pt-0 last:pb-0">
-                    <Link 
-                      href={result.url} 
-                      className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors rounded-lg p-4 -m-4 block"
-                    >
-                      <div className="flex items-center gap-2 mb-2">
-                        {getResultIcon(result.type)}
-                        <span className="text-xs font-medium px-2 py-0.5 bg-gray-100 dark:bg-gray-800 rounded-full capitalize text-gray-600 dark:text-gray-300">
-                          {result.type}
-                        </span>
-                        {result.date && (
-                          <span className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
-                            <Calendar className="w-3 h-3" />
-                            {new Date(result.date).toLocaleDateString('fr-FR', { 
-                              year: 'numeric',
-                              month: 'short',
-                              day: 'numeric'
-                            })}
-                          </span>
-                        )}
-                      </div>
-                      
-                      <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400">
-                        {result.title}
-                        <ExternalLink className="inline-block ml-2 w-4 h-4 text-gray-400" />
-                      </h3>
-                      
-                      <p className="text-gray-600 dark:text-gray-300 mb-4">
-                        {result.description}
-                      </p>
-                      
-                      {result.tags && result.tags.length > 0 && (
-                        <div className="flex flex-wrap gap-2">
-                          {result.tags.map((tag, index) => (
-                            <span key={index} className="text-xs bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-2 py-1 rounded-full flex items-center">
-                              <Tag className="w-3 h-3 mr-1" />
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                      
-                      <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                        {result.url}
-                      </div>
-                    </Link>
+              // Loading state - skeleton loaders
+              <div className="space-y-6">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <div key={i} className="animate-pulse">
+                    <div className="h-6 w-3/12 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
+                    <div className="h-4 w-11/12 bg-gray-100 dark:bg-gray-800 rounded mb-1"></div>
+                    <div className="h-4 w-8/12 bg-gray-100 dark:bg-gray-800 rounded"></div>
                   </div>
                 ))}
               </div>
+            ) : searchResults.length > 0 ? (
+              // Results found
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
+                  {searchResults.length} résultat{searchResults.length > 1 ? 's' : ''} trouvé{searchResults.length > 1 ? 's' : ''}
+                </p>
+                
+                <div className="space-y-6">
+                  {searchResults.map((result) => (
+                    <div key={result.id} className="group">
+                      <Link href={result.url} className="block p-4 rounded-xl border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                        <div className="flex items-center gap-2 mb-2 text-sm text-gray-500 dark:text-gray-400">
+                          {getResultIcon(result.type)}
+                          <span className="capitalize">{result.type}</span>
+                          {result.date && (
+                            <>
+                              <span className="mx-1">•</span>
+                              <Calendar className="w-4 h-4" />
+                              <span>{new Date(result.date).toLocaleDateString('fr-FR', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
+                            </>
+                          )}
+                        </div>
+                        
+                        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-1.5 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                          {result.title}
+                        </h3>
+                        
+                        <p className="text-gray-600 dark:text-gray-300 mb-3">{result.description}</p>
+                        
+                        {result.tags && result.tags.length > 0 && (
+                          <div className="flex flex-wrap gap-2 mb-2">
+                            {result.tags.map((tag, index) => (
+                              <span 
+                                key={index} 
+                                className="inline-flex items-center text-xs px-2.5 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300"
+                              >
+                                <Tag className="w-3 h-3 mr-1" />
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                        
+                        <div className="flex justify-end">
+                          <span className="text-sm text-blue-600 dark:text-blue-400 inline-flex items-center gap-1 group-hover:gap-2 transition-all">
+                            Consulter
+                            <ExternalLink className="w-3.5 h-3.5" />
+                          </span>
+                        </div>
+                      </Link>
+                    </div>
+                  ))}
+                </div>
+              </div>
             ) : (
-              <div className="py-16 text-center">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full mb-6">
+              // No results found
+              <div className="text-center py-12">
+                <div className="mx-auto w-16 h-16 mb-4 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
                   <Search className="w-8 h-8 text-gray-400" />
                 </div>
-                <h3 className="text-xl font-semibold mb-2">Aucun résultat trouvé</h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-8 max-w-md mx-auto">
-                  Nous n'avons trouvé aucun résultat correspondant à votre recherche. Essayez avec d'autres termes ou explorez nos ressources populaires.
+                <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-2">Aucun résultat trouvé</h3>
+                <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto mb-6">
+                  Nous n'avons pas trouvé de résultats correspondant à votre recherche. Essayez avec des termes différents ou plus généraux.
                 </p>
-                <Link href="/ressources">
-                  <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
-                    Explorer les ressources
-                  </Button>
-                </Link>
+                <Button 
+                  onClick={() => setSearchQuery('')}
+                  variant="outline" 
+                  className="bg-transparent"
+                >
+                  Effacer la recherche
+                </Button>
               </div>
             )}
           </div>
@@ -390,20 +381,33 @@ export default function SearchPage() {
       </section>
       
       {/* Popular Searches */}
-      <section className="py-16 bg-gray-50 dark:bg-gray-900">
+      <section className="py-16 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-100 dark:border-gray-800">
         <div className="container max-w-5xl">
-          <h2 className="text-2xl font-bold mb-8 text-center">Recherches populaires</h2>
+          <h2 className="text-2xl font-semibold mb-8 text-gray-900 dark:text-white">Recherches populaires</h2>
           
-          <div className="flex flex-wrap justify-center gap-3">
+          <div className="flex flex-wrap gap-3">
             {[
-              "Documentation API", "Modèles de contrats", "Tutoriels vidéo", "Intégration CRM",
-              "Analyse de documents", "Extraction de données", "Modèles personnalisés", "RGPD",
-              "Tarification", "Automatisation"
-            ].map((term, idx) => (
+              "API Documentation", 
+              "Extraction automatique", 
+              "Modèles juridiques", 
+              "RGPD",
+              "Intégration CRM", 
+              "Signature électronique", 
+              "Workflow d'approbation", 
+              "Analyse IA",
+              "Sécurité des données", 
+              "Tarification"
+            ].map((term, index) => (
               <Link 
-                key={idx} 
+                key={index}
                 href={`/ressources/search?q=${encodeURIComponent(term)}`}
-                className="px-4 py-2 rounded-full bg-white dark:bg-gray-800 text-sm font-medium border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-sm transition-all"
+                className="px-4 py-2 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-500 text-gray-800 dark:text-gray-200 text-sm transition-colors"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setSearchQuery(term);
+                  router.push(`/ressources/search?q=${encodeURIComponent(term)}`);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
               >
                 {term}
               </Link>
@@ -412,5 +416,29 @@ export default function SearchPage() {
         </div>
       </section>
     </div>
+  );
+}
+
+// Composant principal enveloppé avec Suspense
+export default function SearchPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-50 to-white dark:from-gray-950 dark:to-gray-900">
+        <div className="animate-pulse space-y-4 max-w-xl w-full px-4">
+          <div className="h-8 w-1/2 bg-gray-200 dark:bg-gray-800 rounded-lg mx-auto"></div>
+          <div className="h-12 w-full bg-gray-200 dark:bg-gray-800 rounded-xl"></div>
+          <div className="space-y-6 mt-6">
+            {Array(5).fill(0).map((_, i) => (
+              <div key={i} className="space-y-2">
+                <div className="h-5 w-1/4 bg-gray-200 dark:bg-gray-800 rounded"></div>
+                <div className="h-20 w-full bg-gray-200 dark:bg-gray-800 rounded-lg"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    }>
+      <SearchContent />
+    </Suspense>
   );
 } 
